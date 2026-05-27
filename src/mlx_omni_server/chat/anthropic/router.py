@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Generator, Optional
 
 from fastapi import APIRouter, Query
@@ -63,8 +64,9 @@ async def list_anthropic_models(
 async def create_message(request: MessagesRequest):
     """Create an Anthropic Messages API completion"""
 
+    model_id = os.environ.get("MLX_OMNI_MODEL") or request.model
     anthropic_model = _create_anthropic_model(
-        request.model,
+        model_id,
         # Extract extra params if needed - for now use defaults
         None,  # adapter_path
         None,  # draft_model
