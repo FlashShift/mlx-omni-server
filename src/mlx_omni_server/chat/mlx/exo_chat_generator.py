@@ -67,12 +67,17 @@ class ExoChatGenerator:
         stop_words: List[str],
         **kwargs,
     ) -> Dict[str, Any]:
+        # Exo rejects role=system inside messages; hoist to top-level "system" parameter.
+        system_parts = [m["content"] for m in messages if m.get("role") == "system"]
+        filtered_messages = [m for m in messages if m.get("role") != "system"]
         payload: Dict[str, Any] = {
             "model": self._model_id,
-            "messages": messages,
+            "messages": filtered_messages,
             "max_tokens": max_tokens,
             "stream": stream,
         }
+        if system_parts:
+            payload["system"] = "\n\n".join(system_parts)
         if sampler:
             if "temp" in sampler:
                 payload["temperature"] = sampler["temp"]

@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field, field_validator
 class MessageRole(str, Enum):
     USER = "user"
     ASSISTANT = "assistant"
+    SYSTEM = "system"  # Claude Code 2.1.154+ injects system-role messages into messages[]
 
 
 class StopReason(str, Enum):

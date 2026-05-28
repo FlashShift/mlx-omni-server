@@ -78,7 +78,19 @@ class AnthropicMessagesAdapter:
             )
 
         # Convert input messages
+        # Claude Code 2.1.154+ injects role=system into messages[]; hoist to system block.
         for msg in messages:
+            if msg.role.value == "system":
+                extra = msg.content if isinstance(msg.content, str) else " ".join(
+                    b.text for b in msg.content if hasattr(b, "text")
+                )
+                if extra:
+                    existing = mlx_messages[0]["content"] if mlx_messages and mlx_messages[0]["role"] == "system" else None
+                    if existing is not None:
+                        mlx_messages[0]["content"] = existing + "\n\n" + extra
+                    else:
+                        mlx_messages.insert(0, {"role": "system", "content": extra})
+                continue
             mlx_msg = {
                 "role": msg.role.value,
             }
